@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>0579fca3-6678-45bd-bb03-be5fb64b1ab2</UserSecretsId>
+     <DisableTransitiveProjectReferences>false</DisableTransitiveProjectReferences>
   </PropertyGroup>
 
   <ItemGroup>
