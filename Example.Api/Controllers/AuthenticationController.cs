@@ -1,30 +1,35 @@
 ﻿
 using ErrorOr;
-using Example.Application.Services.Authentication;
 using Example.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Example.Domain.Common.Errors;
+using MediatR;
+using Example.Application.Authentication.Commands.Register;
+using Example.Application.Authentication.Queries.Login;
+using Example.Application.Authentication.Common;
 
 namespace Example.Api.Controllers
 {
     [Route("auth")]
     public class AuthenticationController : ApiController
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly ISender _mediator;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        public AuthenticationController(
+            ISender mediator)
         {
-            _authenticationService = authenticationService;
+            _mediator = mediator;
         }
 
         [HttpPost("register")]
-        public IActionResult Register(RegisterRequest request)
+        public async Task<IActionResult> Register(RegisterRequest request)
         {
-            ErrorOr<AuthenticationResult> registerResult = _authenticationService.Register(
-                request.FirstName,
+            var command = new RegisterCommand(request.FirstName,
                 request.LastName,
                 request.Email,
                 request.Password);
+
+            ErrorOr<AuthenticationResult> registerResult = await _mediator.Send(command);
 
             return registerResult.Match(
                 result => Ok(MapAuthResult(result)),
@@ -33,11 +38,13 @@ namespace Example.Api.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(LoginRequest request)
+        public async Task<IActionResult> Login(LoginRequest request)
         {
-            var authResult = _authenticationService.Login(
+            var query = new LoginQuery(
                 request.Email,
                 request.Password);
+
+            var authResult = await _mediator.Send(query);
 
             if (authResult.IsError && authResult.FirstError == Errors.Authentication.InvalidCredentials)
             {

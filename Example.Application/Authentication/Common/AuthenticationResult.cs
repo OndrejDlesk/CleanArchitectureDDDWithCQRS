@@ -1,6 +1,6 @@
 ﻿using Example.Domain.Entities;
 
-namespace Example.Application.Services.Authentication
+namespace Example.Application.Authentication.Common
 {
     public record AuthenticationResult
     (
